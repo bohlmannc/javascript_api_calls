@@ -1,10 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html>
 
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"> </script>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+<
+    <title>FreightWise Programming Test</title>
+
+    <script>
+        'use strict';
+
+        class Test {
+            constructor() {
+                this.testResults = document.getElementsByClassName('test-results')[0];
+
+            }
+            // using async with await to make the API call
+            async run() {
+                console.log(new Date().toISOString(), '[Test]', 'Running the test');
+                try {
+                    const response = await axios.get('http://api.openweathermap.org/data/2.5/weather?id=4608408&units=imperial&APPID=25e989bd41e3e24ce13173d8126e0fd6');
+                    console.log(response);
+                    this.setResults(response)
+                } catch (e) {
+                    // catching any errors
+                    console.log(e);
+                    this.setError(e)
+                }
+                try {
+                    // calling the newsAPI for the headlines
+                    const res = await axios.get('https://newsapi.org/v2/top-headlines?country=us&apiKey=542c709370784d3ebf7e3a21cc9acdce');
+                    console.log(res);
+                    this.getNews(res)
+                }
+                catch (e) {
+                    console.log(e);
+
+                }
+            }
+
+            setError(message) {
+                // figuring out where we want to put an error message
+                // making sure we get the first class name div in case there are multiple
+                const targetDiv = document.getElementsByClassName('test-results')[0];
+                // creating a text node in the document
+                const text = document.createTextNode(message.toString());
+                // appending the error message and putting it into the div
+                targetDiv.append(text.toString());
+            }
+
+            setResults(response) {
+                // taking our response and getting the relevant weather data from it
+                this.currentTemp = response.data.main.temp + ' °F.';
+                this.humidity = response.data.main.humidity + '%.';
+                this.wind = response.data.wind.speed + ' mph.';
+                // figuring out where we want to put the data by looking for the class name in the document
+                const targetDiv = document.getElementsByClassName('test-results')[0];
+                // the following two lines will make the button disappear after the user clicks the button
+                const weatherButton = document.getElementsByClassName('button-container')[0];
+                weatherButton.style.display = 'none';
+                // creating a text node to be put in our target div
+                const s = document.createTextNode('Weather data for Brentwood, TN: ');
+                // appending the weather data we care about into the target div
+                targetDiv.append(s);
+                targetDiv.append('The average temperature is ' + this.currentTemp.toString());
+                targetDiv.append(' The relative humidity is ' + this.humidity.toString());
+                targetDiv.append(' The nominal wind speed is ' + this.wind.toString());
+                // document.getElementsByClassName('test-results')[0].innerHTML = 'text';
+
+            }
+
+            getNews(res) {
+                this.news = res.data.articles;
+                const newsDiv = document.getElementsByClassName('news')[0];
+                const info = document.createTextNode('Top news headlines are: ');
+                newsDiv.append(info);
+                // looping through the top three headlines
+                for (var i = 0; i < 3; i++)
+                    newsDiv.append(this.news[i].title.toString() + ' ');
+
+            }
+        }
+
+
+    </script>
+
+    <style>
+        .button-container {
+            text-align: center;
+        }
+
+        .button-container>button {
+            margin: 0;
+            padding: 10px 18px;
+            color: white;
+            background-color: #008000;
+            border: none;
+            border-radius: 3px;
+            transition: all 200ms ease-in-out;
+            font-size: 14px;
+        }
+
+        .button-container>button:hover {
+            background-color: #00A000;
+        }
+
+        .button-container>button:active {
+            background-color: #006000;
+        }
+    </style>
+
+</head>
+
+<body>
+<div class="test-results">
+</div>
+
+<div class="news">
+
+
+</div>
+
+<div class="button-container"></div>
+
+
+
+<script>
+    'use strict';
+
+    /**
+     * Creates a button for kicking off the test and adds it to the DOM.
+     *
+     * @param {HTMLElement} context  the parent element to add the button to
+     * @param {Test}        test     the test to be executed
+     * @returns {HTMLElement} the button added to the test
+     */
+    function addButtonForTest(context, test) {
+        let testButton = document.createElement('button');
+
+        testButton.type = 'button';
+        testButton.innerText = 'Get the Nashville Weather';
+        testButton.onclick = () => test.run();
+
+        context.appendChild(testButton);
+
+        return testButton;
+    }
+
+    // Create the Test and add a button to the UI for running the test
+    const test = new Test();
+    const buttonContainer = document.getElementsByClassName('button-container')[0];
+
+    addButtonForTest(buttonContainer, test);
+</script>
 </body>
+
 </html>
